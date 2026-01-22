@@ -1,0 +1,15 @@
+Function (Python / General):
+A function is a block of reusable code that performs a specific task.
+It focuses only on behavior and operates on input to produce output, without maintaining its own persistent state.
+
+Class (Python / OOPS):
+A class is a blueprint for creating objects that encapsulate both data (state) and behavior (methods).
+It helps model real-world entities, supports code reuse, and enables object-oriented principles like encapsulation and inheritance.
+
+Why a Class is Better than Functions for Bank Account:
+A bank account requires maintaining state such as balance and account details that change over time.
+Functions alone cannot retain state across multiple operations, whereas a class can store and update this state within an object.
+
+One liner version: Functions model behavior; classes model behavior with state.
+
+State: State is the data stored inside an object that represents its current condition and persists across method calls. [Function runs its job and forgets everything]
