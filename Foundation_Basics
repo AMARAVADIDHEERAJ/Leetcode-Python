@@ -1,0 +1,151 @@
+---
+
+# 🐍 PYTHON INTERVIEW DEFINITIONS — LEVEL 1 (FOUNDATIONS)
+
+---
+
+## 1️⃣ Mutable vs Immutable Objects
+
+**Definition**
+
+> Mutable objects can be modified in place without changing their identity, whereas immutable objects cannot be changed and require creating a new object.
+
+**Examples**
+
+* Mutable: `list`, `dict`, `set`
+* Immutable: `int`, `float`, `str`, `tuple`
+
+**Interview Trap**
+
+> A tuple is hashable **only if all its elements are immutable**.
+
+---
+
+## 2️⃣ Dictionary Keys & Hashing
+
+**Definition**
+
+> Dictionary keys must be hashable and have a stable hash value; therefore, only immutable objects can be used as keys.
+
+**Why mutable objects fail**
+
+* Mutable objects can change → hash changes → dictionary breaks
+
+---
+
+## 3️⃣ Object Identity vs Equality
+
+**Definition**
+
+> `==` checks value equality, while `id()` checks object identity.
+
+**Interview One-liner**
+
+> `id()` returns the unique identity of an object during its lifetime, which is typically its memory address in CPython.
+
+---
+
+## 4️⃣ Integer & String Interning
+
+**Definition**
+
+> Python may reuse small immutable objects for optimization, but object identity for equal values is not guaranteed by the language specification.
+
+**Safe Statement**
+
+> `id(x) == id(y)` may be true due to interning, but it is not guaranteed.
+
+---
+
+## 5️⃣ Variable Assignment (`a = b`)
+
+**Definition**
+
+> Assignment in Python creates a new reference to the same object; it does not copy the object.
+
+**Key Point**
+
+* Multiple variables can point to the same object
+
+---
+
+## 6️⃣ In-place vs Out-of-place Operations
+
+**Rule**
+
+* `+` → creates a new object
+* `+=`, `.append()`, `.extend()` → modify in place (for lists)
+
+**Interview Line**
+
+> Rebinding a variable does not affect other references to the original object.
+
+---
+
+## 7️⃣ Shallow Copy
+
+**Definition**
+
+> A shallow copy duplicates only the outer object; nested mutable objects remain shared.
+
+**Ways to create**
+
+* `list.copy()`
+* slicing `[:]`
+* `copy.copy()`
+
+---
+
+## 8️⃣ Deep Copy
+
+**Definition**
+
+> A deep copy recursively copies all nested objects, creating fully independent structures.
+
+**Trade-off**
+
+* Safer but slower and more memory-intensive
+
+---
+
+# 🐍 PYTHON INTERVIEW DEFINITIONS — LEVEL 2 (FUNCTION BASICS)
+
+---
+
+## 9️⃣ Default Argument Evaluation
+
+**Definition**
+
+> Default arguments in Python are evaluated once at function definition time, not at each function call.
+
+**Bug**
+
+* Mutable default arguments lead to shared state across calls
+
+---
+
+## 🔟 Safe Default Argument Pattern
+
+**Correct Pattern**
+
+```python
+def func(arg=None):
+    if arg is None:
+        arg = []
+```
+
+**Interview One-liner**
+
+> Using `None` as a default argument is safe because it’s immutable and allows creating a new mutable object per function call.
+
+---
+
+## 🧠 Python Argument Passing Model
+
+**Definition**
+
+> Python uses pass-by-object-reference: function arguments are references to objects, not copies.
+
+---
+
+
