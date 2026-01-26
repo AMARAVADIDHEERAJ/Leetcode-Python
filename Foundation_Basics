@@ -148,4 +148,289 @@ def func(arg=None):
 
 ---
 
+# 🐍 LEVEL 2 — `*args` (Positional Variable Arguments)
+
+## 1️⃣ Intuition (plain English)
+
+Sometimes you **don’t know how many arguments** a function will receive.
+`*args` lets a function accept **any number of positional arguments**.
+
+---
+
+## 2️⃣ What `*args` actually is
+
+> `*args` collects extra positional arguments into a **tuple**.
+
+Example:
+
+```python
+def add_numbers(*args):
+    return sum(args)
+```
+
+Call:
+
+```python
+add_numbers(1, 2, 3, 4)
+```
+
+Inside function:
+
+```python
+args = (1, 2, 3, 4)
+```
+
+---
+
+## 3️⃣ Interview-level definition (MEMORIZE)
+
+> “`*args` allows a function to accept a variable number of positional arguments, which are packed into a tuple.”
+
+---
+
+## 4️⃣ Important rules (INTERVIEW TRAPS)
+
+### Rule 1: Name doesn’t matter
+
+```python
+def f(*values): pass
+```
+
+`args` is just a convention.
+
+---
+
+### Rule 2: Must come **after normal parameters**
+
+❌ Invalid:
+
+```python
+def f(*args, x): pass
+```
+
+✅ Valid:
+
+```python
+def f(x, *args): pass
+```
+
+---
+
+### Rule 3: `*args` is a tuple (immutable)
+
+You **can iterate**, but you **can’t modify** it.
+
+---
+
+## 5️⃣ Real-world usage (backend & ML)
+
+* Logging utilities
+* Aggregation functions
+* Wrapper functions
+* Decorators (later)
+
+---
+
+## 🧠 Lock-in check (ONE question)
+
+Answer in **one line**:
+
+👉 What will be the **type** of `args` inside a function?
+ans: tuple
+---
+*args collects variable positional arguments into a tuple, while **kwargs collects variable keyword arguments into a dictionary
+
+1️⃣ *args
+
+Definition
+
+Allows a function to accept a variable number of positional arguments, packed into a tuple.
+
+Key Points
+
+Type: tuple
+
+Name is conventional
+
+Must come after normal parameters
+
+Used when argument count is unknown
+
+2️⃣ **kwargs
+
+Definition
+
+Allows a function to accept a variable number of keyword arguments, packed into a dictionary.
+
+Key Points
+
+Type: dict
+
+Keys must be strings
+
+Must be the last parameter
+
+Used for flexible configuration
+
+3️⃣ Argument Order Rule (VERY IMPORTANT)
+def func(normal_args, *args, **kwargs):
+    pass
+
+
+Remember:
+
+Normal → *args → **kwargs
+
+4️⃣ Argument Passing Model
+
+Definition
+
+Python uses pass-by-object-reference: function arguments receive references to objects, not copies.
+
+5️⃣ Default Argument Pitfall
+
+Problem
+
+Mutable default arguments are evaluated once and shared across calls.
+
+Safe Pattern
+
+def func(x=None):
+    if x is None:
+        x = []
+
+FINAL PYTHON INTERVIEW CHEAT SHEET — LEVEL 2
+Functions & Arguments
+
+*args → variable positional args → tuple
+
+**kwargs → variable keyword args → dict
+
+Argument order → normal → *args → **kwargs
+
+Pass-by-object-reference
+
+Defaults
+
+Default args evaluated once
+
+Mutable defaults cause bugs
+
+Use None pattern
+
+Type Hints
+
+Optional annotations
+
+Not enforced at runtime
+
+Checked using mypy
+
+Lambdas
+
+One-expression anonymous functions
+
+Used with map, filter, sorted
+
+Closures
+
+Functions remembering outer variables
+
+Used in decorators & factories
+
+1️⃣ *args
+
+Exact Interview Answer
+
+“*args allows a function to accept a variable number of positional arguments, which are internally stored as a tuple.”
+
+Example
+
+def f(*args):
+    print(type(args))  # tuple
+
+2️⃣ **kwargs
+
+Exact Interview Answer
+
+“**kwargs allows a function to accept a variable number of keyword arguments, which are internally stored as a dictionary.”
+
+Example
+
+def f(**kwargs):
+    print(type(kwargs))  # dict
+
+3️⃣ Argument Order Rule
+
+Exact Interview Answer
+
+“In a function definition, parameters must follow the order: normal arguments, *args, then **kwargs.”
+
+Example
+
+def f(a, b, *args, **kwargs):
+    pass
+
+4️⃣ Python Argument Passing
+
+Exact Interview Answer
+
+“Python uses pass-by-object-reference, meaning function arguments receive references to objects, not copies.”
+
+5️⃣ Default Mutable Argument Problem
+
+Exact Interview Answer
+
+“Default arguments are evaluated once at function definition time, so using mutable defaults can cause shared state across function calls.”
+
+Example
+
+def f(x=[]):
+    x.append(1)
+
+6️⃣ Safe Default Argument Pattern
+
+Exact Interview Answer
+
+“Using None as a default argument is safe because it is immutable and allows creating a new mutable object per function call.”
+
+Example
+
+def f(x=None):
+    if x is None:
+        x = []
+
+7️⃣ Type Hints
+
+Exact Interview Answer
+
+“Type hints are optional annotations that describe expected data types but are not enforced at runtime.”
+
+8️⃣ Runtime Behavior of Type Hints
+
+Exact Interview Answer
+
+“Python does not enforce type hints at runtime; incorrect types will still execute if the operation itself is valid.”
+
+9️⃣ Static Type Checking
+
+Exact Interview Answer
+
+“Static type checking in Python is performed using tools like mypy.”
+
+🔟 Lambda Functions
+
+Exact Interview Answer
+
+“A lambda function is an anonymous, single-expression function used for short-lived logic.”
+
+Example
+
+lambda x: x * x
+
+1️⃣1️⃣ Closures
+
+Exact Interview Answer
+
+“A closure is a function that retains access to variables from its enclosing lexical scope even after the outer function has finished execution.”
 
