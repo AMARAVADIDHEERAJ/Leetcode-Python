@@ -35,3 +35,251 @@ Class → behavior + state
 State → data the object remembers
 Object → an instance that holds state
 State represents the data of an object, while behavior represents the operations that act on that data.
+
+
+
+# **Python OOP Interview Cheat Sheet** ✅
+
+---
+
+## 1️⃣ Classes & Objects
+
+**Key points:**
+
+* `self` is like `this` in C++ — refers to the instance.
+* Instance variables: unique to object (`self.x`)
+* Class variables: shared across objects (`ClassName.x`)
+
+**Common Q:**
+
+> What’s the difference between `self` and a class variable?
+> **Answer:** `self` is per instance; class variables are shared across all instances.
+
+---
+
+## 2️⃣ Encapsulation & Access Modifiers
+
+**Key points:**
+
+* `_var` → **protected** (convention, still accessible)
+* `__var` → **private** (name mangled: `_ClassName__var`)
+* Python doesn’t enforce access strictly — relies on **developer discipline**.
+
+**Common Q:**
+
+> What is name mangling?
+> **Answer:** Python renames private variables internally as `_ClassName__var` to avoid accidental access.
+
+---
+
+## 3️⃣ Inheritance
+
+**Key points:**
+
+* Single inheritance: `class Child(Parent):`
+* Override methods freely; Python methods are **virtual by default**
+* `super()` → calls **next method in MRO**, not necessarily the immediate parent.
+
+**Common Q:**
+
+> Why no `virtual` keyword in Python?
+> **Answer:** All methods are virtual by default; subclasses can override freely.
+
+---
+
+## 4️⃣ Multiple Inheritance & MRO
+
+**Key points:**
+
+* Python uses **C3 linearization** → Method Resolution Order (MRO)
+* Left-to-right, depth-first search
+* Only **first found method** in MRO is called unless `super()` is used cooperatively.
+
+**Common Q:**
+
+> What happens in diamond problem?
+> **Answer:** Use `super()` in all classes → each method called **once**, respecting MRO.
+
+---
+
+## 5️⃣ Polymorphism & Duck Typing
+
+**Key points:**
+
+* Python polymorphism is **behavior-based**, not type-based.
+* Duck typing: “If it quacks like a duck, it’s a duck”
+* Inheritance optional; method existence matters.
+
+**Common Q:**
+
+> Why does this work: `def make_sound(x): x.speak()`?
+> **Answer:** Python checks for method existence at runtime (dynamic typing), so `x` can be any object with `speak()`.
+
+---
+
+## 6️⃣ Magic / Dunder Methods
+
+**Key points:**
+
+* Let your class behave like **built-in types**
+* Common magic methods:
+
+  * Printing → `__str__`, `__repr__`
+  * Comparisons → `__eq__`, `__lt__`
+  * Operators → `__add__`, `__sub__`
+  * Container behavior → `__getitem__`, `__len__`
+* Without them, operations like `print(obj)` or `v1 + v2` **fail or show memory address**.
+
+**Common Q:**
+
+> Why use magic methods?
+> **Answer:** To make custom objects behave like built-in types (printing, comparison, arithmetic, indexing).
+
+---
+
+## 7️⃣ Abstract Base Classes (ABCs)
+
+**Key points:**
+
+* Python’s version of **interfaces / pure virtual classes**
+* Cannot instantiate abstract classes
+* Subclasses **must implement all abstract methods**
+* Useful for **polymorphic collections**
+
+**Common Q:**
+
+> Why use ABC instead of a base class raising `NotImplementedError`?
+> **Answer:** ABC formally enforces a contract, preventing instantiation of incomplete subclasses, while `NotImplementedError` relies on runtime checks.
+
+---
+
+## 8️⃣ Super Quick Python OOP Pitfalls
+
+* `print(obj)` → uses `__str__`; if not defined, falls back to `__repr__`
+* `==` → by default compares memory address; override `__eq__` for value comparison
+* Multiple inheritance → **explicit calls** to parents can break MRO; prefer `super()`
+* Private variables → `__var` name-mangled; not truly inaccessible
+
+---
+
+## 9️⃣ Quick Interview One-liners
+
+* **Self vs this:** `self` is Python’s equivalent of `this`
+* **Virtual keyword:** Python methods are virtual by default
+* **Duck typing:** Focus on behavior, not type
+* **Magic methods:** Teach Python how your objects behave with operators and functions
+* **Super():** Calls next method in MRO → enables cooperative multiple inheritance
+* **ABC:** Enforces method implementation for polymorphic design
+
+
+
+---
+
+# **Python OOP Interview Q&A Cheat Sheet**
+
+---
+
+### **1️⃣ Classes & Objects**
+
+**Q1:** What is `self` in Python?
+**A:** `self` refers to the current instance of the class. It’s like `this` in C++.
+
+**Q2:** Difference between class variables and instance variables?
+**A:** Instance variables (`self.x`) are unique to each object; class variables (`ClassName.x`) are shared across all objects.
+
+---
+
+### **2️⃣ Encapsulation**
+
+**Q3:** What’s the difference between `_var` and `__var`?
+**A:** `_var` → protected by convention; `__var` → private, name-mangled to `_ClassName__var`.
+
+**Q4:** What is name mangling?
+**A:** Python internally renames private variables to `_ClassName__var` to avoid accidental access from outside the class.
+
+---
+
+### **3️⃣ Inheritance & super()**
+
+**Q5:** Are Python methods virtual by default?
+**A:** Yes. Subclasses can override methods without any `virtual` keyword.
+
+**Q6:** What does `super()` do?
+**A:** Calls the next method in the **Method Resolution Order (MRO)**. It’s safer than directly calling a parent class because it prevents duplicate calls in multiple inheritance.
+
+**Q7:** Why use `super()` instead of `ParentClass.method(self)`?
+**A:** `super()` ensures cooperative multiple inheritance; each method is called once in MRO order. Direct parent calls can skip classes or cause duplicates.
+
+---
+
+### **4️⃣ Multiple Inheritance & MRO**
+
+**Q8:** How does Python resolve method calls in multiple inheritance?
+**A:** Python uses **C3 linearization** → MRO: left-to-right, depth-first.
+
+**Q9:** Diamond problem: will a method be called multiple times?
+**A:** No, if `super()` is used in all classes, each method is called only once according to MRO.
+
+---
+
+### **5️⃣ Polymorphism & Duck Typing**
+
+**Q10:** Why does this work in Python but not in C++?
+
+```python
+def make_sound(x):
+    x.speak()
+```
+
+**A:** Python uses runtime type checking; it only requires that `x` has a `speak()` method (duck typing). C++ requires a common base class or interface.
+
+**Q11:** Is inheritance required for polymorphism in Python?
+**A:** No. Python supports polymorphism through behavior (duck typing), not type hierarchy.
+
+---
+
+### **6️⃣ Magic / Dunder Methods**
+
+**Q12:** What is the difference between `__str__` and `__repr__`?
+**A:** `__str__` → user-friendly string for `print()`
+`__repr__` → developer-friendly string for debugging / console
+
+**Q13:** Why do we implement magic methods?
+**A:** To make custom objects behave like built-in types (printing, comparison, arithmetic, indexing).
+
+**Q14:** Which magic method is called when `+` is used?
+**A:** `__add__`
+
+**Q15:** Which magic method is called when `==` is used?
+**A:** `__eq__`
+
+**Q16:** What happens if `print(obj)` is called and `__str__` is not defined?
+**A:** Python falls back to `__repr__`. If neither exists, it prints the memory address.
+
+---
+
+### **7️⃣ Abstract Base Classes (ABCs)**
+
+**Q17:** What is an abstract class in Python?
+**A:** A class that cannot be instantiated and may contain abstract methods marked with `@abstractmethod`.
+
+**Q18:** Why use ABCs instead of a normal base class with `NotImplementedError`?
+**A:** ABCs formally enforce a contract; subclasses **must implement all abstract methods**, preventing accidental instantiation of incomplete classes.
+
+**Q19:** Can a subclass of an ABC be abstract?
+**A:** Yes, if it doesn’t implement all abstract methods.
+
+---
+
+### **8️⃣ Quick Pitfalls / Interview Traps**
+
+* Private variables: `__var` → name mangled, not fully inaccessible
+* Magic methods must match exact signature; missing args can cause runtime errors
+* Direct parent calls in multiple inheritance can break MRO
+* Python comparisons: `==` defaults to memory comparison unless `__eq__` is defined
+
+---
+
+
+
+
