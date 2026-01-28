@@ -434,3 +434,36 @@ Exact Interview Answer
 
 “A closure is a function that retains access to variables from its enclosing lexical scope even after the outer function has finished execution.”
 
+
+PYTHON OOP — ADVANCED LEVEL 3 INTERVIEW CHEAT SHEET
+
+You can memorize this directly.
+
+1️⃣ Inheritance
+
+“A child class acquires attributes and methods of a parent class for reusability and extensibility.”
+
+2️⃣ Method Overriding
+
+“A child class provides its own implementation of a parent class method.”
+
+3️⃣ super()
+
+“Used to invoke parent class methods within a child class.”
+
+4️⃣ Multiple Inheritance
+
+“A class inherits from more than one parent class.”
+
+5️⃣ MRO
+
+“Defines the order in which Python resolves method calls in inheritance hierarchies.”
+
+6️⃣ Composition
+
+“A class contains objects of other classes to reuse functionality.”
+
+7️⃣ Composition vs Inheritance
+
+“Use inheritance for ‘is-a’ relationships and composition for ‘has-a’ relationships.”
+
