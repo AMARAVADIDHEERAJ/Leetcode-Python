@@ -467,3 +467,38 @@ You can memorize this directly.
 
 “Use inheritance for ‘is-a’ relationships and composition for ‘has-a’ relationships.”
 
+PYTHON LEVEL 4 — FINAL INTERVIEW CHEAT SHEET (PRECISE)
+
+Memorize this as-is.
+
+1️⃣ GIL (Global Interpreter Lock)
+
+“The GIL is a mutex in CPython that allows only one thread to execute Python bytecode at a time, simplifying memory management but limiting CPU-bound multithreading.”
+
+2️⃣ GIL Impact
+
+“The GIL affects CPU-bound tasks but not I/O-bound tasks.”
+
+3️⃣ Multithreading
+
+“Multithreading uses multiple threads within the same process but is limited by the GIL for CPU-bound tasks in CPython.”
+
+4️⃣ Multiprocessing
+
+“Multiprocessing uses multiple processes with separate memory spaces, bypassing the GIL and enabling true parallelism.”
+
+5️⃣ CPU-bound vs I/O-bound
+
+“CPU-bound tasks require heavy computation, while I/O-bound tasks spend most of their time waiting for external resources.”
+
+6️⃣ Async Programming
+
+“Async programming enables concurrent execution of I/O-bound tasks using a single thread and an event loop.”
+
+7️⃣ Event Loop
+
+“An event loop schedules and switches between asynchronous tasks when they are waiting for I/O.”
+
+8️⃣ Async Limitation
+
+“Async programming is not suitable for CPU-bound tasks.”
