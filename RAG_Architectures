@@ -1,0 +1,1153 @@
+Absolutely. That's a good approach. We'll keep the learning **concept-first and implementation-second**. You can come back and build everything once the architecture is clear.
+
+# RAG — Lesson 4: Advanced RAG Architectures
+
+So far we've learned **how retrieval can be improved**. Now let's look at architectures that go beyond the traditional:
+
+```text
+Query → Retrieve → LLM → Answer
+```
+
+The key idea is that **not every question should be handled by the same retrieval strategy**.
+
+---
+
+# 1. Why do we need different RAG architectures?
+
+Consider these questions:
+
+### Simple question
+
+> "What is our vacation policy?"
+
+One retrieval step may be enough.
+
+```text
+Query
+ ↓
+Retrieve
+ ↓
+LLM
+```
+
+### Multi-document question
+
+> "Compare the 2025 and 2026 vacation policies."
+
+Now we need multiple documents.
+
+```text
+Query
+ ↓
+Retrieve 2025
+Retrieve 2026
+ ↓
+Compare
+ ↓
+LLM
+```
+
+### Multi-hop question
+
+> "Who manages the team responsible for Project X?"
+
+We may need:
+
+```text
+Project X
+ ↓
+Responsible Team
+ ↓
+Team Manager
+```
+
+### Question requiring reasoning about whether retrieval is needed
+
+> "What is 2 + 2?"
+
+We don't need a knowledge base at all.
+
+So a good RAG system needs to answer:
+
+> **When should I retrieve, what should I retrieve, and how many times should I retrieve?**
+
+That's where advanced RAG architectures come in.
+
+---
+
+# 2. Naive RAG
+
+Let's establish the baseline.
+
+```text id="p5m1zr"
+User Query
+     ↓
+Embedding
+     ↓
+Vector Search
+     ↓
+Top-K Chunks
+     ↓
+Prompt
+     ↓
+LLM
+     ↓
+Answer
+```
+
+This is **Naive RAG**.
+
+It's simple and useful, but it assumes:
+
+1. The query is already good.
+2. One retrieval step is enough.
+3. The retrieved chunks contain everything needed.
+4. The LLM can correctly use those chunks.
+5. Retrieval is always necessary.
+
+Real applications often violate these assumptions.
+
+---
+
+# 3. Query Transformation
+
+One of the first improvements is to modify the user's query before retrieval.
+
+```text id="3h5n0u"
+User Query
+    ↓
+Query Transformation
+    ↓
+Better Search Query
+    ↓
+Retriever
+```
+
+There are several approaches.
+
+---
+
+## 3.1 Query Rewriting
+
+User:
+
+> "What about eligibility?"
+
+Previous conversation:
+
+> "Tell me about parental leave."
+
+Rewrite:
+
+```text id="l4q7cq"
+"What are the eligibility requirements
+for parental leave?"
+```
+
+Then retrieve.
+
+This is particularly useful for conversational RAG.
+
+---
+
+# 4. Query Decomposition
+
+Sometimes the question contains multiple independent questions.
+
+For example:
+
+> "What are the cost, eligibility requirements, and benefits of our health insurance?"
+
+Instead of one retrieval query:
+
+```text id="u3s4c1"
+Q
+ ↓
+Retriever
+```
+
+we can decompose:
+
+```text id="u7g9p8"
+                  Original Query
+                       ↓
+              Query Decomposition
+                       ↓
+            ┌──────────┼──────────┐
+            ↓          ↓          ↓
+           Q1         Q2         Q3
+            ↓          ↓          ↓
+        Retrieve   Retrieve   Retrieve
+            └──────────┼──────────┘
+                       ↓
+                  Combine Results
+                       ↓
+                       LLM
+```
+
+For example:
+
+```text id="q1b5r4"
+Q1 = What is the cost?
+Q2 = What are the eligibility requirements?
+Q3 = What benefits are included?
+```
+
+This can significantly improve retrieval for complex questions.
+
+---
+
+# 5. Multi-Hop RAG
+
+Now we reach something more interesting.
+
+Suppose the user asks:
+
+> "Who is the manager of the team responsible for Project Alpha?"
+
+We may need several retrieval steps.
+
+### Step 1
+
+Find Project Alpha.
+
+```text id="f8t0ch"
+Query:
+Project Alpha
+
+↓
+Project document
+
+Project Alpha → Team A
+```
+
+### Step 2
+
+Search for Team A.
+
+```text id="n7v4sm"
+Team A
+ ↓
+Team information
+ ↓
+Manager = Sarah
+```
+
+### Step 3
+
+Answer:
+
+```text id="5dy4sk"
+Sarah manages Team A,
+which is responsible for Project Alpha.
+```
+
+The architecture becomes:
+
+```text id="1v4g3w"
+Question
+   ↓
+Retrieve
+   ↓
+Intermediate Information
+   ↓
+New Query
+   ↓
+Retrieve Again
+   ↓
+More Information
+   ↓
+LLM
+   ↓
+Answer
+```
+
+That's **multi-hop retrieval**.
+
+---
+
+# 6. Why normal RAG fails here
+
+Naive RAG might search:
+
+> "Who is the manager of the team responsible for Project Alpha?"
+
+The database may contain:
+
+```text id="r4x2sd"
+Project Alpha → Team A
+```
+
+and separately:
+
+```text id="t8u3xp"
+Team A → Sarah
+```
+
+Neither chunk alone answers the complete question.
+
+The system needs to **connect the pieces**.
+
+That's why multi-hop RAG is useful.
+
+---
+
+# 7. Agentic RAG
+
+Now let's take multi-hop retrieval one step further.
+
+Instead of defining all retrieval steps in advance, we can let an LLM/agent decide what to do next.
+
+Conceptually:
+
+```text id="m7z2qf"
+                  User Query
+                      ↓
+                    Agent
+                      ↓
+              What should I do?
+                      ↓
+             ┌────────┼────────┐
+             ↓        ↓        ↓
+          Search    Search    No Search
+             ↓        ↓
+             └────┬───┘
+                  ↓
+              Analyze
+                  ↓
+          Need more information?
+             ↙          ↘
+           Yes           No
+            ↓             ↓
+         Search          Answer
+            ↓
+         Analyze
+```
+
+This is **Agentic RAG**.
+
+The agent can dynamically decide:
+
+* Search
+* Search again
+* Search another source
+* Rewrite the query
+* Use a tool
+* Stop searching
+* Generate an answer
+
+---
+
+# 8. Traditional RAG vs Agentic RAG
+
+### Traditional RAG
+
+The pipeline is mostly predetermined:
+
+```text id="p7f0u5"
+Query
+ ↓
+Retriever
+ ↓
+Context
+ ↓
+LLM
+```
+
+### Agentic RAG
+
+The LLM/agent controls the workflow:
+
+```text id="k3n7q1"
+Query
+ ↓
+Agent
+ ↓
+Decide
+ ↓
+Tool/Search
+ ↓
+Observe
+ ↓
+Decide again
+ ↓
+...
+ ↓
+Answer
+```
+
+This gives much more flexibility.
+
+But it also introduces:
+
+* More latency
+* More cost
+* More complexity
+* More opportunities for incorrect decisions
+
+So **agentic doesn't automatically mean better**.
+
+---
+
+# 9. Self-RAG
+
+Now let's introduce a fascinating architecture:
+
+**Self-RAG**
+
+The basic idea is:
+
+> The model evaluates whether it needs retrieval and whether the retrieved information supports its answer.
+
+Instead of blindly doing:
+
+```text id="e5j3m7"
+Query
+ ↓
+Retrieve
+ ↓
+Generate
+```
+
+we can do:
+
+```text id="7b8tq0"
+Query
+ ↓
+Should I retrieve?
+ ↓
+Retrieve
+ ↓
+Is this information useful?
+ ↓
+Generate
+ ↓
+Is my answer supported?
+ ↓
+Final Answer
+```
+
+The model effectively participates in the retrieval process.
+
+---
+
+# 10. Why Self-RAG?
+
+Consider:
+
+> "What is 10 × 10?"
+
+Retrieval isn't necessary.
+
+A traditional RAG pipeline might still search the database.
+
+Self-RAG could decide:
+
+```text id="e7m8l4"
+Need external knowledge?
+       ↓
+      No
+       ↓
+Answer directly
+```
+
+But:
+
+> "What is our company's parental leave policy?"
+
+would trigger retrieval.
+
+```text id="l8z3qs"
+Need external knowledge?
+       ↓
+      Yes
+       ↓
+Retrieve
+```
+
+This can reduce unnecessary retrieval.
+
+---
+
+# 11. Corrective RAG — CRAG
+
+Another architecture is:
+
+**Corrective RAG (CRAG)**.
+
+The idea is to evaluate retrieval quality.
+
+```text id="3n7q8p"
+Query
+ ↓
+Retrieve
+ ↓
+Evaluate Retrieval
+ ↓
+ ┌───────────────┐
+ │               │
+Good            Bad
+ ↓               ↓
+Use it       Correct/Search Again
+```
+
+For example:
+
+```text id="q2y8ac"
+Query
+ ↓
+Retriever
+ ↓
+Retrieved chunks
+ ↓
+Retriever evaluator
+```
+
+If the results are poor:
+
+```text id="f5n0zc"
+Poor retrieval
+      ↓
+Rewrite query
+      ↓
+Search again
+```
+
+So CRAG is essentially:
+
+> **Don't blindly trust the first retrieval result.**
+
+---
+
+# 12. Adaptive RAG
+
+Now combine these ideas.
+
+Different questions can use different retrieval strategies.
+
+For example:
+
+```text id="4qf5t1"
+                    Query
+                      ↓
+                Query Classifier
+                      ↓
+        ┌─────────────┼─────────────┐
+        ↓             ↓             ↓
+    Simple         Complex       No retrieval
+        ↓             ↓             ↓
+   Basic RAG     Multi-hop       Direct LLM
+                      ↓
+                  Agentic RAG
+```
+
+This is **Adaptive RAG**.
+
+The system dynamically decides the appropriate strategy.
+
+---
+
+# 13. Example of Adaptive RAG
+
+### Question 1
+
+> "What is the company's vacation policy?"
+
+```text id="4t9c9n"
+Simple
+ ↓
+Basic Retrieval
+```
+
+### Question 2
+
+> "Compare vacation policies in India and Germany."
+
+```text id="o9e8pw"
+Complex
+ ↓
+Multiple retrievals
+ ↓
+Comparison
+```
+
+### Question 3
+
+> "What is 2 + 2?"
+
+```text id="q2k9h4"
+No retrieval
+ ↓
+LLM / calculator
+```
+
+### Question 4
+
+> "Who manages the team responsible for Project X?"
+
+```text id="4k9h6e"
+Multi-hop
+ ↓
+Iterative retrieval
+```
+
+One architecture doesn't need to handle all four in exactly the same way.
+
+---
+
+# 14. Graph RAG
+
+Now we're going to introduce a completely different idea.
+
+Traditional RAG primarily thinks in terms of:
+
+```text id="z6p2g8"
+Document
+ ↓
+Chunk
+ ↓
+Vector
+```
+
+Graph RAG introduces:
+
+```text id="x4m8k2"
+Entities
+   +
+Relationships
+```
+
+For example:
+
+```text id="n9w5s1"
+        Sarah
+          │
+       manages
+          ↓
+       Team A
+          │
+    responsible for
+          ↓
+    Project Alpha
+```
+
+Now we have a graph.
+
+---
+
+# 15. Why use a graph?
+
+Some questions are fundamentally about **relationships**.
+
+For example:
+
+> "Which projects are managed by teams reporting to Sarah?"
+
+A vector database can retrieve relevant text.
+
+But a graph naturally represents:
+
+```text id="g8f2q6"
+Sarah
+ ↓ manages
+Team A
+ ↓ owns
+Project X
+```
+
+Graph-based retrieval can follow these relationships.
+
+This is particularly useful for:
+
+* Organizations
+* Knowledge bases
+* Supply chains
+* Research papers
+* Products and dependencies
+* Financial relationships
+* Complex entities
+
+---
+
+# 16. Traditional RAG vs Graph RAG
+
+### Traditional RAG
+
+```text id="4y8m1p"
+Question
+ ↓
+Semantic Search
+ ↓
+Relevant Chunks
+ ↓
+LLM
+```
+
+### Graph RAG
+
+```text id="g0x8j3"
+Question
+ ↓
+Entity / Relationship Extraction
+ ↓
+Graph Traversal
+ ↓
+Relevant Entities + Relationships
+ ↓
+LLM
+```
+
+You can also combine them:
+
+```text id="m4r7v2"
+Vector Search
+     +
+Graph Search
+     ↓
+Combined Context
+     ↓
+LLM
+```
+
+---
+
+# 17. Multimodal RAG
+
+So far we've mostly talked about text.
+
+But real documents can contain:
+
+```text id="7x3m9q"
+Text
+Images
+Tables
+Charts
+Diagrams
+Screenshots
+Audio
+Video
+```
+
+**Multimodal RAG** extends RAG beyond plain text.
+
+For example, imagine a financial report contains:
+
+```text id="e5c7a1"
+Page 20:
+
+Revenue: $10M
+
+[Bar Chart]
+2023 ██████
+2024 █████████
+2025 ███████████
+```
+
+A text-only extraction might lose important information from the chart.
+
+Multimodal RAG can retrieve and reason over:
+
+```text id="7r2v6d"
+Text
++
+Images
++
+Tables
+```
+
+---
+
+# 18. Table RAG
+
+Tables are particularly tricky.
+
+Suppose the document contains:
+
+```text id="h7j3s8"
+Country | Revenue | Growth
+India   | $10M    | 20%
+USA     | $20M    | 15%
+UK      | $8M     | 12%
+```
+
+User asks:
+
+> "Which country had the highest revenue?"
+
+A simple text chunk may work.
+
+But more complex questions such as:
+
+> "What was the average revenue of countries with growth above 15%?"
+
+may require structured reasoning.
+
+This can lead to:
+
+```text id="s3k8p2"
+Table
+ ↓
+Structured representation
+ ↓
+Query / computation
+ ↓
+Answer
+```
+
+Sometimes a database or dataframe is more appropriate than treating the table as ordinary text.
+
+---
+
+# 19. RAG isn't always the right solution
+
+This is a very important engineering lesson.
+
+Suppose the user asks:
+
+> "What is the current stock price?"
+
+A static vector database is not necessarily the right source.
+
+You may need:
+
+```text id="v8p1s4"
+API
+ ↓
+Current data
+```
+
+Or:
+
+> "Calculate the average sales for Q1."
+
+A SQL database may be more appropriate:
+
+```text id="z4k7m1"
+User Question
+ ↓
+SQL generation
+ ↓
+Database
+ ↓
+Result
+```
+
+So modern AI systems often combine:
+
+```text id="n3q8x5"
+RAG
++
+APIs
++
+Databases
++
+Search
++
+Tools
++
+Agents
+```
+
+---
+
+# 20. RAG vs Fine-tuning
+
+This is a question you'll almost certainly encounter.
+
+### RAG
+
+Use when you need the model to access **external/current/private knowledge**.
+
+```text id="3p7z1m"
+Knowledge
+ ↓
+Retriever
+ ↓
+LLM
+```
+
+### Fine-tuning
+
+Use when you want to change the model's **behavior, style, task performance, or learned patterns**.
+
+```text id="k9m2x6"
+Training Data
+ ↓
+Fine-tuning
+ ↓
+Model
+```
+
+A simplified rule:
+
+> **RAG changes what information the model can access at runtime.**
+
+> **Fine-tuning changes how the model behaves.**
+
+They can also be used together.
+
+---
+
+# 21. RAG vs long context
+
+Modern LLMs can accept very large contexts.
+
+You might wonder:
+
+> "Why not just put the entire document into the context?"
+
+Sometimes that's viable for smaller datasets.
+
+But for large knowledge bases:
+
+```text id="d5k8p3"
+1 document
+      ↓
+Long context
+```
+
+might work.
+
+But:
+
+```text id="m6q1x8"
+100,000 documents
+      ↓
+???
+```
+
+doesn't scale that way.
+
+RAG provides a way to select relevant information.
+
+The challenge becomes:
+
+> **Retrieve enough information without overwhelming the model.**
+
+---
+
+# 22. RAG architecture spectrum
+
+Now we can visualize the evolution:
+
+```text id="a8v4k1"
+                RAG Evolution
+                     │
+                     ▼
+                Naive RAG
+                     │
+                     ▼
+              Hybrid Retrieval
+                     │
+                     ▼
+                 Reranking
+                     │
+                     ▼
+             Query Transformation
+                     │
+                     ▼
+               Multi-Query
+                     │
+                     ▼
+               Multi-Hop RAG
+                     │
+                     ▼
+                 CRAG
+                     │
+                     ▼
+                Self-RAG
+                     │
+                     ▼
+               Adaptive RAG
+                     │
+                     ▼
+               Agentic RAG
+                     │
+             ┌───────┴────────┐
+             ↓                ↓
+         Graph RAG       Multimodal RAG
+```
+
+These aren't necessarily mutually exclusive.
+
+A production system might combine several of them.
+
+---
+
+# 23. A realistic advanced architecture
+
+For example, a sophisticated enterprise assistant could look like:
+
+```text id="d3x8q2"
+                         User
+                          │
+                          ▼
+                   Query Classifier
+                          │
+              ┌───────────┼───────────┐
+              ↓           ↓           ↓
+           Simple       Complex      Tool
+              │           │           │
+              ↓           ↓           ↓
+          Basic RAG   Agentic RAG    API
+                          │
+                  ┌───────┴───────┐
+                  ↓               ↓
+             Vector Search    Graph Search
+                  ↓               ↓
+             BM25 Search          │
+                  └───────┬───────┘
+                          ↓
+                      Reranking
+                          ↓
+                   Context Selection
+                          ↓
+                         LLM
+                          ↓
+                    Grounded Answer
+```
+
+This is the direction modern RAG systems are heading.
+
+---
+
+# 24. One important warning
+
+Don't assume:
+
+> **More complicated RAG = better RAG.**
+
+This is a common mistake.
+
+For a simple question:
+
+```text
+"What is our vacation policy?"
+```
+
+this might be enough:
+
+```text id="3x6v9a"
+Query
+ ↓
+Hybrid Search
+ ↓
+Reranker
+ ↓
+LLM
+```
+
+Building a huge agentic graph-based system could actually make things worse:
+
+* More latency
+* More cost
+* More failure points
+* Harder debugging
+* More complex evaluation
+
+The best architecture is usually:
+
+> **The simplest architecture that reliably solves the problem.**
+
+---
+
+# 25. The RAG decision tree
+
+A useful engineering mindset is:
+
+```text id="s5n7q3"
+                  User Query
+                      ↓
+             Do I need external data?
+                 /           \
+               No             Yes
+               ↓               ↓
+             LLM          What type?
+                              │
+               ┌──────────────┼──────────────┐
+               ↓              ↓              ↓
+            Simple        Multi-hop       Structured
+               ↓              ↓              ↓
+           Basic RAG      Agentic/       SQL/API/
+                          Multi-hop       Graph
+               │
+               ↓
+          Hybrid Search
+               ↓
+           Reranking
+               ↓
+             LLM
+```
+
+This is the kind of thinking you want to develop as an AI engineer.
+
+---
+
+# 🧠 Your RAG knowledge now
+
+You've gone from:
+
+```text
+"What is RAG?"
+```
+
+to understanding:
+
+```text
+RAG
+│
+├── Indexing
+│   ├── Loading
+│   ├── Chunking
+│   ├── Metadata
+│   └── Embeddings
+│
+├── Retrieval
+│   ├── Dense
+│   ├── Sparse
+│   ├── Hybrid
+│   ├── Filtering
+│   ├── Reranking
+│   ├── MMR
+│   └── Query transformation
+│
+├── Advanced RAG
+│   ├── Multi-query
+│   ├── Query decomposition
+│   ├── Multi-hop
+│   ├── CRAG
+│   ├── Self-RAG
+│   ├── Adaptive RAG
+│   ├── Agentic RAG
+│   ├── Graph RAG
+│   └── Multimodal RAG
+│
+├── Generation
+│   ├── Context construction
+│   ├── Prompting
+│   └── Grounding
+│
+└── Evaluation
+    ├── Recall@K
+    ├── Precision@K
+    ├── MRR
+    ├── NDCG
+    ├── Faithfulness
+    └── Answer relevance
+```
+
+That's now a **strong advanced conceptual foundation**.
+
+---
+
+# 🚀 Next Lesson: RAG vs Fine-tuning vs Long Context vs Agents
+
+Before we start implementation, there's one architectural decision that's extremely important in real projects:
+
+> **"Should I use RAG, fine-tuning, long context, an agent, or some combination?"**
+
+We'll compare them with concrete scenarios and decision rules.
+
+Then we'll move into **production RAG architecture**—caching, latency, cost, access control, multi-tenancy, document updates, observability, evaluation pipelines, and security.
+
+After that, you'll have the complete conceptual picture and can implement the system with a much clearer understanding of **why each component exists**.
