@@ -1,0 +1,247 @@
+flowchart TD
+
+    %% =========================
+    %% USER QUERY
+    %% =========================
+    A["👤 User Query"] --> B["Query Processing"]
+
+    B --> B1["Query Rewriting"]
+    B --> B2["Query Expansion / Multi-Query"]
+    B --> B3["Query Decomposition"]
+    
+    B1 --> C["Retrieval Strategy"]
+    B2 --> C
+    B3 --> C
+
+    %% =========================
+    %% RETRIEVAL
+    %% =========================
+    C --> D1["Dense Retrieval"]
+    C --> D2["Sparse Retrieval<br/>BM25"]
+    C --> D3["Hybrid Search"]
+    C --> D4["Metadata Filtering"]
+    C --> D5["Graph Retrieval"]
+
+    D1 --> E["Top-K Candidates"]
+    D2 --> E
+    D3 --> E
+    D4 --> E
+    D5 --> E
+
+    %% =========================
+    %% RERANKING
+    %% =========================
+    E --> F["Reranker"]
+    F --> F1["Cross-Encoder"]
+    F1 --> G["Relevant Chunks"]
+
+    %% =========================
+    %% CONTEXT
+    %% =========================
+    G --> H["Context Construction"]
+    H --> H1["Remove Duplicates"]
+    H --> H2["Order / Prioritize"]
+    H --> H3["Token Budget"]
+    
+    H1 --> I["Final Context"]
+    H2 --> I
+    H3 --> I
+
+    %% =========================
+    %% LLM
+    %% =========================
+    I --> J["Prompt + Context"]
+    J --> K["LLM"]
+    K --> L["Grounded Answer"]
+
+    %% =========================
+    %% EVALUATION
+    %% =========================
+    L --> M["Evaluation"]
+    M --> M1["Faithfulness"]
+    M --> M2["Answer Relevance"]
+    M --> M3["Groundedness"]
+
+    %% =========================
+    %% KNOWLEDGE INGESTION
+    %% =========================
+    N["📚 Knowledge Sources"] --> N1["PDF"]
+    N --> N2["Word / HTML"]
+    N --> N3["Database"]
+    N --> N4["APIs"]
+    N --> N5["Images / Tables"]
+
+    N1 --> O["Document Parsing"]
+    N2 --> O
+    N3 --> O
+    N4 --> O
+    N5 --> O
+
+    O --> P["Cleaning & Normalization"]
+    P --> Q["Chunking"]
+
+    Q --> Q1["Fixed Size"]
+    Q --> Q2["Recursive"]
+    Q --> Q3["Semantic"]
+    Q --> Q4["Parent / Child"]
+
+    Q1 --> R["Metadata"]
+    Q2 --> R
+    Q3 --> R
+    Q4 --> R
+
+    R --> S["Embedding Model"]
+    S --> T["Vector Representation"]
+
+    T --> U["Vector Database / Index"]
+
+    U -.-> D1
+    U -.-> D3
+
+    %% =========================
+    %% PRODUCTION
+    %% =========================
+    V["🏭 Production Layer"]
+
+    V --> V1["Authentication"]
+    V --> V2["Authorization / RBAC"]
+    V --> V3["Multi-Tenancy"]
+    V --> V4["Caching"]
+    V --> V5["Latency Optimization"]
+    V --> V6["Cost Optimization"]
+    V --> V7["Observability"]
+    V --> V8["Security"]
+    V --> V9["Document Updates / Versioning"]
+
+    V7 --> W["Tracing"]
+    W --> X["Query → Retrieval → Reranking → LLM → Answer"]
+
+    %% =========================
+    %% ADVANCED RAG
+    %% =========================
+    Y["🚀 Advanced RAG"] --> Y1["Multi-Hop RAG"]
+    Y --> Y2["CRAG"]
+    Y --> Y3["Self-RAG"]
+    Y --> Y4["Adaptive RAG"]
+    Y --> Y5["Agentic RAG"]
+    Y --> Y6["Graph RAG"]
+    Y --> Y7["Multimodal RAG"]
+
+    Y1 -.-> C
+    Y2 -.-> F
+    Y3 -.-> K
+    Y4 -.-> C
+    Y5 -.-> C
+    Y6 -.-> D5
+    Y7 -.-> N5
+
+    %% =========================
+    %% ARCHITECTURE CHOICES
+    %% =========================
+    Z["🧠 AI Architecture Choices"]
+
+    Z --> Z1["RAG<br/>External Knowledge"]
+    Z --> Z2["Fine-Tuning<br/>Change Behavior"]
+    Z --> Z3["Long Context<br/>Broad Context"]
+    Z --> Z4["Agents<br/>Actions & Tools"]
+
+    Z1 -.-> K
+    Z2 -.-> K
+    Z3 -.-> J
+    Z4 -.-> Y5
+
+
+
+
+
+
+
+
+flowchart LR
+
+    A["User Question"]
+    B["Query Processing"]
+    C["Retriever"]
+    D["Reranker"]
+    E["Relevant Context"]
+    F["LLM"]
+    G["Grounded Answer"]
+
+    A --> B --> C --> D --> E --> F --> G
+
+    H["Documents"] --> I["Chunking"]
+    I --> J["Embeddings"]
+    J --> K["Vector DB"]
+    K -.-> C
+
+
+
+
+              ┌───────────────────────┐
+              │     KNOWLEDGE BASE     │
+              │                       │
+Documents → Parsing → Chunking        │
+              ↓                       │
+          Embeddings                  │
+              ↓                       │
+        Vector / Search Index         │
+              └──────────┬────────────┘
+                         │
+                         ▼
+User Question → Query Processing
+                         │
+                         ▼
+                    Retrieval
+                         │
+                         ▼
+                     Reranking
+                         │
+                         ▼
+                  Relevant Context
+                         │
+                         ▼
+                 Prompt + Context
+                         │
+                         ▼
+                       LLM
+                         │
+                         ▼
+                  Grounded Answer
+                         │
+                         ▼
+                    Evaluation
+
+
+Mental Model
+
+┌──────────────────────────────────────────┐
+│  1. KNOWLEDGE                            │
+│  Documents → Parse → Chunk → Embed       │
+├──────────────────────────────────────────┤
+│  2. RETRIEVAL                            │
+│  Dense + Sparse + Hybrid + Filters      │
+├──────────────────────────────────────────┤
+│  3. RELEVANCE                            │
+│  Reranking → Context Selection           │
+├──────────────────────────────────────────┤
+│  4. GENERATION                           │
+│  Context + Prompt → LLM → Answer        │
+├──────────────────────────────────────────┤
+│  5. PRODUCTION                           │
+│  Evaluation + Security + Cost + Scale   │
+└──────────────────────────────────────────┘
+
+
+
+Advanced RAG
+                 ADVANCED RAG
+                      │
+     ┌────────────────┼─────────────────┐
+     │                │                 │
+ Multi-Query      Multi-Hop        Agentic RAG
+     │                │                 │
+     ├──────────── CRAG ────────────────┤
+     │                │                 │
+ Self-RAG        Adaptive RAG       Graph RAG
+                      │
+                 Multimodal RAG
